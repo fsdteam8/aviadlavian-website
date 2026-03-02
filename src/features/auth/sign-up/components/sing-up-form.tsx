@@ -28,8 +28,8 @@ const SignUpForm = () => {
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      FirstName: "",
+      LastName: "",
       email: "",
       password: "",
     },
@@ -69,7 +69,7 @@ const SignUpForm = () => {
             <div className="flex gap-4">
               <FormField
                 control={form.control}
-                name="firstName"
+                name="FirstName"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <h4 className="text-[10px] text-[#f7f0e4] uppercase">
@@ -88,7 +88,7 @@ const SignUpForm = () => {
               />
               <FormField
                 control={form.control}
-                name="lastName"
+                name="LastName"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <h4 className="text-[10px] text-[#f7f0e4] uppercase">
