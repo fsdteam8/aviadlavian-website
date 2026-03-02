@@ -1,8 +1,9 @@
+import OverView from "@/features/overview/OverView";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold">Template Setup</h1>
-      <p className="mt-4 text-xl">The application root is ready.</p>
+    <main className="min-h-[calc(100vh-4rem)] bg-slate-100 p-4 transition-colors sm:p-6 lg:p-8 dark:bg-slate-950">
+      <OverView />
     </main>
   );
 }
