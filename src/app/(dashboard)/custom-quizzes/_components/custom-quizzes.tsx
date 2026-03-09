@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { LayoutGrid, Clock, CheckCircle2 } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { LayoutGrid, Clock, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,8 +21,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
-// Types based on your API response
 interface Injury {
   _id: string;
   Primary_Body_Region: string;
@@ -32,34 +34,75 @@ interface ApiResponse {
 }
 
 const CustomQuizzes = () => {
+  const session = useSession();
+  const token = session?.data?.accessToken;
+
   const [step, setStep] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Form States
   const [examName, setExamName] = useState("");
-  const [examTopic, setExamTopic] = useState("");
+  const [selectedTopic, setSelectedTopic] = useState("");
 
-  // TanStack Query for Injuries
   const { data, isLoading } = useQuery<ApiResponse>({
     queryKey: ["injuries"],
     queryFn: async () => {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/injury/get-all`,
       );
-      if (!response.ok) throw new Error("Network response was not ok");
+      if (!response.ok) throw new Error("Failed to fetch injuries");
       return response.json();
     },
     enabled: isOpen,
   });
 
-  console.log("data: ", data);
+  // Start Exam Mutation
+  const mutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/examattempt/start`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
 
-  // Extract unique Primary_Body_Regions for the
-  const uniqueRegions = useMemo(() => {
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to start exam");
+      }
+
+      return result;
+    },
+    onSuccess: () => {
+      toast.success("Exam started successfully!");
+      setIsOpen(false);
+    },
+    onError: (error: any) => {
+      toast.error(error.message);
+    },
+  });
+
+  // Unique regions filter
+  const uniqueTopics = useMemo(() => {
     if (!data?.data) return [];
     const regions = data.data.map((item) => item.Primary_Body_Region);
     return Array.from(new Set(regions));
   }, [data]);
+
+  const handleConfirm = () => {
+    const defaultDate = new Date().toLocaleDateString("en-GB");
+
+    mutation.mutate({
+      topicId: selectedTopic,
+      examName: examName.trim() || defaultDate,
+      timeLimitMinutes: 120,
+    });
+  };
 
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
@@ -67,7 +110,7 @@ const CustomQuizzes = () => {
       setTimeout(() => {
         setStep(1);
         setExamName("");
-        setExamTopic("");
+        setSelectedTopic("");
       }, 300);
     }
   };
@@ -85,7 +128,7 @@ const CustomQuizzes = () => {
 
           <Dialog open={isOpen} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-              <Button className="bg-[#0e308d] hover:bg-[#0a246b] hover:cursor-pointer">
+              <Button className="bg-[#0e308d] hover:bg-[#0a246b] hover:cursor-pointer transition-colors">
                 New Practice Exam
               </Button>
             </DialogTrigger>
@@ -121,9 +164,11 @@ const CustomQuizzes = () => {
                           timer.
                         </p>
                       </div>
-                      <div className="flex gap-4 text-slate-600">
+                      <div className="flex gap-4">
                         <CheckCircle2 className="w-6 h-6 mt-1 text-slate-800 shrink-0" />
-                        <p>Correct answers count toward CME/MOC progress.</p>
+                        <p className="text-slate-600">
+                          Correct answers count toward CME/MOC progress.
+                        </p>
                       </div>
                     </div>
                     <p className="font-semibold text-slate-800">Good Luck!</p>
@@ -133,7 +178,7 @@ const CustomQuizzes = () => {
                     <Button
                       variant="outline"
                       onClick={() => setIsOpen(false)}
-                      className="px-10 border-[#0e308d] text-[#0e308d]"
+                      className="px-10 border-[#0e308d] text-[#0e308d] hover:bg-slate-50"
                     >
                       Cancel
                     </Button>
@@ -148,34 +193,31 @@ const CustomQuizzes = () => {
               ) : (
                 <div className="flex flex-col items-center">
                   <div className="w-full border rounded-xl overflow-hidden mb-8 text-lg bg-white">
-                    {/* Exam Name Input */}
                     <div className="flex border-b items-center">
-                      <div className="w-1/3 p-4 border-r text-slate-700 font-medium">
+                      <div className="w-1/3 p-4 border-r text-slate-700 font-medium bg-slate-50/50">
                         Exam Name :
                       </div>
                       <div className="w-2/3 p-2">
                         <Input
-                          placeholder="Enter exam name..."
+                          placeholder={`(Optional) e.g. ${new Date().toLocaleDateString("en-GB")}`}
                           value={examName}
                           onChange={(e) => setExamName(e.target.value)}
-                          className="border-none focus-visible:ring-0 text-slate-900 text-lg"
+                          className="border-none focus-visible:ring-0 text-slate-900 text-lg placeholder:text-slate-400 placeholder:text-sm"
                         />
                       </div>
                     </div>
 
-                    {/* Exam Time (Static) */}
                     <div className="flex border-b items-center">
-                      <div className="w-1/3 p-4 border-r text-slate-700 font-medium">
+                      <div className="w-1/3 p-4 border-r text-slate-700 font-medium bg-slate-50/50">
                         Exam Time :
                       </div>
-                      <div className="w-2/3 p-4 text-slate-900 font-semibold">
+                      <div className="w-2/3 p-4 text-slate-900 font-semibold tracking-wide">
                         01 : 20 : 00
                       </div>
                     </div>
 
-                    {/* Exam Topic Dropdown */}
                     <div className="flex items-center">
-                      <div className="w-1/3 p-4 border-r text-slate-700 font-medium">
+                      <div className="w-1/3 p-4 border-r text-slate-700 font-medium bg-slate-50/50">
                         Exam Topic :
                       </div>
                       <div className="w-2/3 p-2">
@@ -183,14 +225,14 @@ const CustomQuizzes = () => {
                           <Skeleton className="h-10 w-full rounded-md" />
                         ) : (
                           <Select
-                            value={examTopic}
-                            onValueChange={setExamTopic}
+                            value={selectedTopic}
+                            onValueChange={setSelectedTopic}
                           >
-                            <SelectTrigger className="border-none focus:ring-0 text-lg shadow-none">
+                            <SelectTrigger className="border-none focus:ring-0 text-lg shadow-none w-full">
                               <SelectValue placeholder="Select Topic" />
                             </SelectTrigger>
                             <SelectContent>
-                              {uniqueRegions.map((region) => (
+                              {uniqueTopics.map((region) => (
                                 <SelectItem key={region} value={region}>
                                   {region}
                                 </SelectItem>
@@ -203,10 +245,18 @@ const CustomQuizzes = () => {
                   </div>
 
                   <Button
-                    disabled={!examName || !examTopic}
-                    className="px-12 py-6 bg-[#0e308d] hover:bg-[#0a246b] text-lg rounded-md w-full sm:w-auto"
+                    disabled={!selectedTopic || mutation.isPending}
+                    onClick={handleConfirm}
+                    className="px-12 py-6 bg-[#0e308d] hover:bg-[#0a246b] text-lg rounded-md w-full sm:w-auto min-w-[200px]"
                   >
-                    Confirm
+                    {mutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Starting...
+                      </>
+                    ) : (
+                      "Confirm"
+                    )}
                   </Button>
                 </div>
               )}
@@ -216,7 +266,8 @@ const CustomQuizzes = () => {
 
         <div className="border px-5 py-6 rounded-lg bg-white flex items-center justify-between lg:w-1/2 shadow-sm">
           <p className="text-slate-600 lg:max-w-md">
-            Create custom quizzes based on specific body regions.
+            Create custom quizzes based on specific body regions or difficulty
+            levels.
           </p>
           <Button className="bg-[#0e308d] hover:bg-[#0a246b]">
             Create New Quiz
