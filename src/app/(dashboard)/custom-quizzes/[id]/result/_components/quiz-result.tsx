@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { FileText, ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 // --- Types ---
 interface Option {
@@ -82,56 +83,58 @@ const QuizResult = () => {
         Quizzes in progress
       </h2>
 
-      <div className="space-y-4">
-        {/* We map the summary into a card like the Figma layout */}
-        <div className="flex items-center justify-between p-4 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer">
-          {/* Left: Date and Mode */}
-          <div className="flex items-start gap-4">
-            <div className="mt-1">
-              <FileText className="w-5 h-5 text-slate-900" />
+      <Link href={`/custom-quizzes/${id}/result/history`}>
+        <div className="space-y-4">
+          {/* We map the summary into a card like the Figma layout */}
+          <div className="flex items-center justify-between p-4 border border-slate-100 rounded-lg hover:bg-slate-50 transition-colors group cursor-pointer">
+            {/* Left: Date and Mode */}
+            <div className="flex items-start gap-4">
+              <div className="mt-1">
+                <FileText className="w-5 h-5 text-slate-900" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-900">
+                  {summary?.startedAt
+                    ? new Date(summary.startedAt).toLocaleDateString("en-GB")
+                    : "05/04/2025"}
+                </p>
+                <p className="text-sm text-slate-600">Exam Mode Quizzes</p>
+              </div>
             </div>
-            <div>
-              <p className="text-sm font-bold text-slate-900">
-                {summary?.startedAt
-                  ? new Date(summary.startedAt).toLocaleDateString("en-GB")
-                  : "05/04/2025"}
+
+            {/* Center: Progress and Stats */}
+            <div className="flex-1 max-w-md lg:max-w-2xl px-8">
+              <div className="flex justify-between mb-1">
+                <span className="text-sm font-medium text-slate-800">
+                  Total {summary?.totalQuestions} Questions
+                </span>
+              </div>
+
+              {/* Multi-segment Progress Bar */}
+              <div className="w-full h-2 bg-slate-200 rounded-full flex overflow-hidden">
+                <div
+                  className="h-full bg-emerald-600"
+                  style={{ width: `${correctWidth}%` }}
+                />
+                <div
+                  className="h-full bg-red-500"
+                  style={{ width: `${incorrectWidth}%` }}
+                />
+              </div>
+
+              <p className="mt-1 text-sm text-slate-600 font-medium">
+                {summary?.scorePercentage}% Correct of{" "}
+                {summary?.attemptedQuestions} question completed
               </p>
-              <p className="text-sm text-slate-600">Exam Mode Quizzes</p>
-            </div>
-          </div>
-
-          {/* Center: Progress and Stats */}
-          <div className="flex-1 max-w-md lg:max-w-2xl px-8">
-            <div className="flex justify-between mb-1">
-              <span className="text-sm font-medium text-slate-800">
-                Total {summary?.totalQuestions} Questions
-              </span>
             </div>
 
-            {/* Multi-segment Progress Bar */}
-            <div className="w-full h-2 bg-slate-200 rounded-full flex overflow-hidden">
-              <div
-                className="h-full bg-emerald-600"
-                style={{ width: `${correctWidth}%` }}
-              />
-              <div
-                className="h-full bg-red-500"
-                style={{ width: `${incorrectWidth}%` }}
-              />
+            {/* Right: Action */}
+            <div>
+              <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-900 transition-colors" />
             </div>
-
-            <p className="mt-1 text-sm text-slate-600 font-medium">
-              {summary?.scorePercentage}% Correct of{" "}
-              {summary?.attemptedQuestions} question completed
-            </p>
-          </div>
-
-          {/* Right: Action */}
-          <div>
-            <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-slate-900 transition-colors" />
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 };
