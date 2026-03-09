@@ -139,7 +139,7 @@ const QuizResult = () => {
 // --- Skeleton Loader ---
 
 const QuizSkeleton = () => (
-  <div className="p-6 max-w-4xl mx-auto animate-pulse">
+  <div className="p-6 animate-pulse">
     <div className="h-6 w-48 bg-slate-200 rounded mb-6"></div>
     {[1, 2, 3].map((i) => (
       <div key={i} className="h-24 w-full bg-slate-100 rounded-lg mb-4"></div>
