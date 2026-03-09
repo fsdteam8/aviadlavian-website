@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface Injury {
   _id: string;
@@ -36,6 +37,7 @@ interface ApiResponse {
 const CustomQuizzes = () => {
   const session = useSession();
   const token = session?.data?.accessToken;
+  const router = useRouter();
 
   const [step, setStep] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
@@ -78,8 +80,9 @@ const CustomQuizzes = () => {
 
       return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Exam started successfully!");
+      router.push(`/custom-quizzes/${data?.data?._id}`);
       setIsOpen(false);
     },
     onError: (error: any) => {
