@@ -19,7 +19,13 @@ export interface PopulatedFlashcard {
     topicId: Topic;
     [key: string]: unknown;
   };
-  isAnswered: "unanswered" | "answered" | "skipped";
+  isAnswered:
+    | "unanswered"
+    | "answered"
+    | "skipped"
+    | "correct"
+    | "incorrect"
+    | "unsure";
   answeredAt?: string | null;
 }
 

@@ -12,7 +12,7 @@ import {
   ChevronRight,
   ChevronUp,
 } from "lucide-react";
-import { useLearningPlan } from "../hooks/useLearningPlan";
+import { useLearningPlan, useUpdateFlashcard } from "../hooks/useLearningPlan";
 import {
   findBodyRegion,
   groupArticlesBySecondaryRegion,
@@ -49,54 +49,107 @@ const ProgressBar = ({
 };
 
 // ── Flashcard Item Component ──
-const FlashcardItem = ({ flashcard }: { flashcard: PopulatedFlashcard }) => {
+const FlashcardItem = ({
+  planId,
+  flashcard,
+}: {
+  planId: string;
+  flashcard: PopulatedFlashcard;
+}) => {
   const [showAnswer, setShowAnswer] = useState(false);
+  const { mutate, isPending } = useUpdateFlashcard();
 
   const questionText =
     flashcard.flashcardId?.question || "Question not available";
   const answerText = flashcard.flashcardId?.answer || "Answer not available";
 
-  let statusColor = "text-slate-500";
-  let statusText = "Unanswered";
-
-  if (flashcard.isAnswered === "answered") {
-    statusColor = "text-teal-600";
-    statusText = "Answered";
-  } else if (flashcard.isAnswered === "skipped") {
-    statusColor = "text-red-500";
-    statusText = "Skipped";
-  }
+  const handleConfidenceRating = (
+    status: "correct" | "incorrect" | "unsure",
+  ) => {
+    mutate({
+      planId,
+      flashcardId: flashcard.flashcardId._id,
+      status,
+    });
+  };
 
   return (
-    <div className="border-b py-4 last:border-b-0">
-      <div className="flex items-start gap-3">
-        <p className="flex-1 text-sm font-medium text-slate-800 dark:text-slate-200">
-          <span className="font-bold text-slate-900 dark:text-white">Q : </span>
+    <div className="mb-6 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col">
+      {/* Top Section: Question */}
+      <div className="bg-[#feede0] p-8 flex flex-col items-center text-center">
+        <div className="text-[#a46023] mb-4">
+          {/* Heart/Beat custom icon representation based on design */}
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+            <path
+              d="M12 5 9.04 7.96a2.1 2.1 0 0 0 0 2.97l2.46 2.47a2.1 2.1 0 0 0 2.97 0l2.46-2.47a2.1 2.1 0 0 0 0-2.97L12 5Z"
+              fill="currentColor"
+            />
+            <path d="M3.5 12h3l2-3 3 7 2-3h4" />
+          </svg>
+        </div>
+        <p className="text-[#a46023] font-medium text-lg max-w-2xl leading-relaxed">
           {questionText}
         </p>
-        <span className={`text-xs font-semibold ${statusColor}`}>
-          {statusText}
-        </span>
       </div>
 
-      <button
-        onClick={() => setShowAnswer(!showAnswer)}
-        className="mt-2 text-sm font-medium text-[#0077A3] hover:underline flex items-center gap-1"
+      {/* Bottom Section: Answer / Reveal Button */}
+      <div
+        className={`p-8 flex flex-col items-center justify-center transition-colors min-h-[160px] ${showAnswer ? "bg-white" : "bg-[#eef6fd]"}`}
       >
-        {showAnswer ? "Hide answer" : "Reveal answer"}
-        {showAnswer ? (
-          <ChevronUp className="w-4 h-4" />
+        {!showAnswer ? (
+          <button
+            onClick={() => setShowAnswer(true)}
+            className="text-[#0077A3] font-bold text-xl hover:underline"
+          >
+            Reveal Answer
+          </button>
         ) : (
-          <ChevronDown className="w-4 h-4" />
-        )}
-      </button>
+          <div className="w-full text-center">
+            <p className="text-slate-800 font-medium text-lg max-w-2xl mx-auto leading-relaxed mb-8">
+              {answerText}
+            </p>
 
-      {showAnswer && (
-        <div className="mt-3 p-3 bg-slate-50 rounded-lg text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-          <span className="font-bold text-slate-900 dark:text-white">A : </span>
-          {answerText}
-        </div>
-      )}
+            <div className="border-t border-slate-200 pt-6 mt-4 text-left w-full">
+              <p className="text-slate-700 font-medium mb-4">
+                Rate your confidence. Did you know the answer?
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <button
+                  onClick={() => handleConfidenceRating("correct")}
+                  disabled={isPending}
+                  className={`px-6 py-2 rounded-full border border-teal-500 text-teal-600 font-medium hover:bg-teal-50 transition-colors ${flashcard.isAnswered === "correct" ? "bg-teal-100" : ""}`}
+                >
+                  Correct
+                </button>
+                <button
+                  onClick={() => handleConfidenceRating("incorrect")}
+                  disabled={isPending}
+                  className={`px-6 py-2 rounded-full border border-red-500 text-red-500 font-medium hover:bg-red-50 transition-colors ${flashcard.isAnswered === "incorrect" ? "bg-red-100" : ""}`}
+                >
+                  Incorrect
+                </button>
+                <button
+                  onClick={() => handleConfidenceRating("unsure")}
+                  disabled={isPending}
+                  className={`px-6 py-2 rounded-full border border-[#cbab58] text-[#b38e36] font-medium hover:bg-yellow-50 transition-colors ${flashcard.isAnswered === "unsure" ? "bg-amber-100" : ""}`}
+                >
+                  Unsure
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -317,9 +370,13 @@ const DetailedLearning = ({ bodyRegion, topicId }: DetailedLearningProps) => {
             No flashcards found for this topic.
           </p>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-4 pt-2">
             {flashcards.map((fc) => (
-              <FlashcardItem key={fc._id} flashcard={fc} />
+              <FlashcardItem
+                key={fc._id}
+                flashcard={fc}
+                planId={plans[0]?._id}
+              />
             ))}
           </div>
         )}
