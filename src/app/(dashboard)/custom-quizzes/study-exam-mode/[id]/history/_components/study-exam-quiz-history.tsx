@@ -153,7 +153,7 @@ const StudyExamQuizHistory = () => {
         {results.map((item) => (
           <Link
             key={item.questionId}
-            href={`/study-exam/${id}/result/history/${item.questionId}`}
+            href={`/custom-quizzes/study-exam-mode/${id}/history/${item.questionId}`}
           >
             <div className="flex items-center justify-between p-3 bg-[#FDFDFD] border border-[#E5E7EB] rounded-lg hover:shadow-sm transition-all group cursor-pointer">
               <div className="flex items-center gap-4">
