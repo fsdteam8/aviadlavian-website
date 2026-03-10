@@ -104,7 +104,7 @@ const CreateCustomQuiz = ({ topics, token, onBack }: Props) => {
     },
     onSuccess: (data) => {
       toast.success("Quiz created successfully!");
-      router.push(`/custom-quizzes/${data?.data?._id}`);
+      router.push(`/custom-quizzes/study-exam-mode/${data?.data?._id}`);
     },
     onError: (error: any) => {
       toast.error(error.message);
