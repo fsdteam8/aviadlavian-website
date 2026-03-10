@@ -172,7 +172,7 @@ const CreateCustomQuiz = ({ topics, token, onBack }: Props) => {
                 <Label
                   htmlFor="study"
                   className={cn(
-                    "flex flex-col p-4 border rounded-lg cursor-pointer transition-all",
+                    "flex flex-col p-4 border rounded-lg cursor-pointer transition-all items-start",
                     mode === "study"
                       ? "border-[#6b21a8] bg-purple-50"
                       : "hover:bg-slate-50",
@@ -190,7 +190,7 @@ const CreateCustomQuiz = ({ topics, token, onBack }: Props) => {
                 <Label
                   htmlFor="exam"
                   className={cn(
-                    "flex flex-col p-4 border rounded-lg cursor-pointer transition-all",
+                    "flex flex-col p-4 border rounded-lg cursor-pointer transition-all items-start",
                     mode === "exam"
                       ? "border-[#6b21a8] bg-purple-50"
                       : "hover:bg-slate-50",
