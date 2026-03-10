@@ -58,7 +58,6 @@ const CustomQuizzes = () => {
       if (!response.ok) throw new Error("Failed to fetch filter options");
       return response.json();
     },
-    enabled: isOpen, // Only fetch when dialog is open
   });
 
   // Extract body regions from response
