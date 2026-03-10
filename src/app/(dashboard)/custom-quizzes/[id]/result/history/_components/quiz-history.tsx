@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { FileText, ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 // --- Types ---
 interface Option {
@@ -116,32 +117,34 @@ const QuizHistory = () => {
       {/* Detailed Results List */}
       <div className="space-y-1">
         {results.map((item) => (
-          <div
+          <Link
             key={item.questionId}
-            className="flex items-center justify-between p-3 bg-[#FDFDFD] border border-[#E5E7EB] rounded-lg hover:shadow-sm transition-all group cursor-pointer"
+            href={`/custom-quizzes/${id}/result/history/${item.questionId}`}
           >
-            <div className="flex items-center gap-4">
-              {/* Question Number Box */}
-              <div
-                className={`w-10 h-10 flex items-center justify-center rounded-md text-white font-bold text-xs ${item.isCorrect ? "bg-[#047857]" : "bg-[#EF4444]"}`}
-              >
-                {item.serialNumber.toString().padStart(2, "0")}
+            <div className="flex items-center justify-between p-3 bg-[#FDFDFD] border border-[#E5E7EB] rounded-lg hover:shadow-sm transition-all group cursor-pointer">
+              <div className="flex items-center gap-4">
+                {/* Question Number Box */}
+                <div
+                  className={`w-10 h-10 flex items-center justify-center rounded-md text-white font-bold text-xs ${item.isCorrect ? "bg-[#047857]" : "bg-[#EF4444]"}`}
+                >
+                  {item.serialNumber.toString().padStart(2, "0")}
+                </div>
+
+                {/* Question Text and Breadcrumb */}
+                <div>
+                  <h3 className="text-[#374151] font-medium text-sm">
+                    Diagnose hereditary hemochromatosis
+                  </h3>
+                  <p className="text-[11px] text-[#6B7280] uppercase tracking-wide">
+                    MSK Nexus &gt; {summary?.topicId || "Gastroenterology"} &gt;
+                    Question {item.serialNumber}
+                  </p>
+                </div>
               </div>
 
-              {/* Question Text and Breadcrumb */}
-              <div>
-                <h3 className="text-[#374151] font-medium text-sm">
-                  Diagnose hereditary hemochromatosis
-                </h3>
-                <p className="text-[11px] text-[#6B7280] uppercase tracking-wide">
-                  MSK Nexus &gt; {summary?.topicId || "Gastroenterology"} &gt;
-                  Question {item.serialNumber}
-                </p>
-              </div>
+              <ChevronRight className="w-5 h-5 text-[#1F2937]" />
             </div>
-
-            <ChevronRight className="w-5 h-5 text-[#1F2937]" />
-          </div>
+          </Link>
         ))}
       </div>
 
