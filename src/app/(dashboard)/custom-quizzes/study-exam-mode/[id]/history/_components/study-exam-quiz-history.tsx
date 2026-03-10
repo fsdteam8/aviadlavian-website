@@ -191,9 +191,6 @@ const StudyExamQuizHistory = () => {
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-4 mt-10">
-        <button className="px-8 py-2.5 bg-[#003580] text-white font-semibold rounded-lg text-sm hover:bg-[#002a66] transition-colors">
-          Retake Quiz
-        </button>
         <button className="px-8 py-2.5 bg-white text-[#EF4444] font-semibold rounded-lg text-sm border border-[#EF4444] hover:bg-red-50 transition-colors">
           Delete Results
         </button>
