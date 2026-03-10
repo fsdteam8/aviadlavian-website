@@ -65,7 +65,7 @@ const StudyExamQuizHistory = () => {
     queryKey: ["studyExamResult", id],
     queryFn: async () => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/quiz/${id}/result`,
+        `${process.env.NEXT_PUBLIC_API_URL}/quiz/${id}/result?mode=exam`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
