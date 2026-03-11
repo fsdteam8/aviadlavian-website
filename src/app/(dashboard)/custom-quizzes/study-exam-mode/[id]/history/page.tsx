@@ -1,10 +1,10 @@
 import React from "react";
-import Aboutus from "@/features/aboutus/component/Aboutus";
+import StudyExamQuizHistory from "./_components/study-exam-quiz-history";
 
 const page = () => {
   return (
     <div>
-      <Aboutus />
+      <StudyExamQuizHistory />
     </div>
   );
 };

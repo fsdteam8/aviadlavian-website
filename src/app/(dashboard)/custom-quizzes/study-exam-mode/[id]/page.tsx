@@ -1,10 +1,10 @@
 import React from "react";
-import Aboutus from "@/features/aboutus/component/Aboutus";
+import StudyExamModes from "./_components/study-exam-modes";
 
 const page = () => {
   return (
     <div>
-      <Aboutus />
+      <StudyExamModes />
     </div>
   );
 };
