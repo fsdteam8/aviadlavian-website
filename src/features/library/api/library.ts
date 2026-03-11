@@ -6,7 +6,7 @@ import {
 } from "../type/library";
 
 export type AnnotationHighlight = {
-  id: string; // chapterId / topicId — used to filter highlights per chapter
+  id: string; // unique highlight identifier (nanoid)
   text: string;
   range: { from: number; to: number } | { nodePath: string };
   color: string;
