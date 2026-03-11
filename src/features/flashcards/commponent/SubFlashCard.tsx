@@ -26,7 +26,6 @@ type SubFlashCardProps = {
 
 const SubFlashCard = ({
   flashcardId,
-  flashcardTitle = "Flashcard",
   subspecialtyTitle = "Knee",
   chapterTitle = "Chondromalacia Patella",
 }: SubFlashCardProps) => {
@@ -34,9 +33,17 @@ const SubFlashCard = ({
   const { data: progressData } = useFlashcardProgress(flashcardId || "");
 
   const injuries: InjuryData[] = injuriesData?.data || [];
-  const completedQuestions = progressData?.data?.totalCount || injuries.length;
-  const completedCount = progressData?.data?.completedCount || 0;
-  const completedPercent = progressData?.data?.completedPercentage || 0;
+
+  // Use backend summary data
+  const summary = progressData?.data?.summary;
+  const total = summary?.totalFlashcards || injuries.length;
+  const correctCount = summary?.correct || 0;
+  const wrongCount = summary?.wrong || 0;
+
+  const correctPercent = total > 0 ? (correctCount / total) * 100 : 0;
+  const wrongPercent = total > 0 ? (wrongCount / total) * 100 : 0;
+  const totalCompletedPercent =
+    total > 0 ? ((correctCount + wrongCount) / total) * 100 : 0;
 
   return (
     <div className="w-full">
@@ -45,14 +52,21 @@ const SubFlashCard = ({
           Flashcards
         </h1>
 
-        <div className="mt-2 text-sm text-orange-700 dark:text-orange-400">
-          <span>{flashcardTitle}</span>
-          <span className="mx-1">&gt;</span>
-          <span>{subspecialtyTitle}</span>
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-bold text-orange-700 dark:text-orange-400">
+          <Link
+            href="/flashcards"
+            className="hover:underline uppercase tracking-tight"
+          >
+            Flashcards
+          </Link>
+          <span className="text-slate-400 font-normal px-0.5">›</span>
+          <span className="uppercase tracking-tight">{subspecialtyTitle}</span>
           {chapterTitle && (
             <>
-              <span className="mx-1">&gt;</span>
-              <span>{chapterTitle}</span>
+              <span className="text-slate-400 font-normal px-0.5">›</span>
+              <span className="uppercase tracking-tight text-slate-500 dark:text-slate-500">
+                {chapterTitle}
+              </span>
             </>
           )}
         </div>
@@ -66,26 +80,44 @@ const SubFlashCard = ({
             Your Progress
           </p>
 
-          <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+          <div className="mt-2 h-3 w-full flex overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
             <div
-              className="h-full bg-emerald-500"
-              style={{ width: `${completedPercent}%` }}
+              className="h-full bg-emerald-500 transition-all duration-500"
+              style={{ width: `${correctPercent}%` }}
+              title={`Correct: ${correctCount}`}
+            />
+            <div
+              className="h-full bg-red-500 transition-all duration-500"
+              style={{ width: `${wrongPercent}%` }}
+              title={`Wrong: ${wrongCount}`}
             />
           </div>
 
-          <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
-            <span className="font-semibold text-orange-700 dark:text-orange-400">
-              {completedPercent}% completed
-            </span>{" "}
-            of {completedQuestions} questions completed
-          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-sm">
+            <p className="text-slate-700 dark:text-slate-300">
+              <span className="font-semibold text-orange-700 dark:text-orange-400">
+                {Math.round(totalCompletedPercent)}% completed
+              </span>{" "}
+              of {total} questions
+            </p>
+            <div className="flex gap-4">
+              <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                {correctCount} Correct
+              </span>
+              <span className="flex items-center gap-1.5 text-red-600 dark:text-red-400 font-medium">
+                <span className="h-2 w-2 rounded-full bg-red-500" />
+                {wrongCount} Wrong
+              </span>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            className="mt-4 rounded-full bg-orange-700 px-6 py-2 text-sm font-semibold text-white transition hover:bg-orange-800"
+          <Link
+            href={`/flashcards/${flashcardId}/${injuries.find((i) => !i.userAnswer)?._id || injuries[0]?._id || ""}`}
+            className="mt-4 inline-block rounded-full bg-orange-700 px-6 py-2 text-sm font-semibold text-white transition hover:bg-orange-800"
           >
             Resume Flashback
-          </button>
+          </Link>
         </div>
 
         <div className="mt-6">
