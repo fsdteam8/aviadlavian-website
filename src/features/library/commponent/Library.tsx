@@ -3,7 +3,13 @@
 import React, { useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronRight, Circle, Edit3, PencilLine } from "lucide-react";
+import {
+  ChevronRight,
+  Circle,
+  CloudCog,
+  Edit3,
+  PencilLine,
+} from "lucide-react";
 import { useLibrary } from "../hooks/uselibrary";
 import { LibraryArticle } from "../type/library";
 
@@ -53,6 +59,7 @@ const Library = () => {
       </div>
     );
   }
+  console.log("region ", regions);
 
   return (
     <div className="mx-auto w-full">
@@ -69,7 +76,7 @@ const Library = () => {
         {regions.map((region) => {
           const articles = groupedData[region];
           if (!articles || articles.length === 0) return null;
-
+          console.log("articles ", articles);
           return (
             <section key={region}>
               <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 shadow-sm">
