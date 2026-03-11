@@ -1,7 +1,12 @@
 import React from "react";
+import Aboutus from "@/features/aboutus/component/Aboutus";
 
 const page = () => {
-  return <div>about</div>;
+  return (
+    <div>
+      <Aboutus />
+    </div>
+  );
 };
 
 export default page;

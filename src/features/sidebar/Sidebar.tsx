@@ -39,7 +39,7 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   { label: "Home", icon: Home, url: "/" },
   { label: "Library", icon: Library, url: "/library" },
-  { label: "About", icon: Info },
+  { label: "About", icon: Info, url: "/about" },
   { label: "Question Bank", icon: SquareKanban },
   { label: "Learning Plan", icon: FileText, url: "/learningplan" },
   { label: "Flashcards", icon: Sparkles, url: "/flashcards" },
