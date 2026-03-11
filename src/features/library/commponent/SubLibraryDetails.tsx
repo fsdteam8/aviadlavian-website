@@ -14,6 +14,7 @@ import {
 } from "../hooks/uselibrary";
 import type { AnnotationHighlight, AnnotationNote } from "../hooks/uselibrary";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 type SubLibraryDetailsProps = {
   libraryId: string;
@@ -96,10 +97,20 @@ const SubLibraryDetails = ({
       id: `n-${Date.now()}`,
       content: newNote,
     };
-    saveMutation.mutate({
-      highlights,
-      notes: [...notes, note],
-    });
+    saveMutation.mutate(
+      {
+        highlights,
+        notes: [...notes, note],
+      },
+      {
+        onSuccess: () => {
+          toast.success("Note added successfully");
+        },
+        onError: () => {
+          toast.error("Failed to add note");
+        },
+      },
+    );
     setNewNote("");
     setSelectedSection("");
     setShowNotesPanel(false);
@@ -164,7 +175,17 @@ const SubLibraryDetails = ({
       }),
     );
 
-    saveMutation.mutate({ highlights: updatedHighlights, notes });
+    saveMutation.mutate(
+      { highlights: updatedHighlights, notes },
+      {
+        onSuccess: () => {
+          toast.success("Highlight saved");
+        },
+        onError: () => {
+          toast.error("Failed to save highlight");
+        },
+      },
+    );
     setFloatingMenu(null);
     window.getSelection()?.removeAllRanges();
   };
